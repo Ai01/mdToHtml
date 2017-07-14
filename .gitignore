@@ -1,6 +1,10 @@
 
 # Created by https://www.gitignore.io/api/node,macos
 
+
+# vscode
+.vscode
+
 ### macOS ###
 *.DS_Store
 .AppleDouble

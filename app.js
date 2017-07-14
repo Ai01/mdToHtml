@@ -1,41 +1,32 @@
-var express = require('express');
-var path = require('path');
-var fs = require('fs');
-var hljs = require('highlight.js');
-console.log(hljs);
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const hljs = require('highlight.js');
 // var favicon = require('serve-favicon');
 // var logger = require('morgan');
 // var cookieParser = require('cookie-parser');
 // var bodyParser = require('body-parser');
 // var connection = require('express-myconnection');
 // var mysql = require('mysql');
-var marked = require('marked');
+const marked = require('marked');
 
 marked.setOptions({
     renderer: new marked.Renderer(),
     highlight: (code, lang) => {
-        var res;
-        // console.log(lang);
-        // if (lang) {
-        //     res = hljs.highlight(lang, code, true).value;
-        // } else {
+        let res;
+        if (lang) {
+            res = hljs.highlight(lang, code, true).value;
+        } else {
             res = hljs.highlightAuto(code).value;
-        // }
+        }
         return res;
     },
-    gfm: true,
-    tables: true,
-    breaks: true,
-    pedantic: false,
-    sanitize: true,
-    smartLists: true,
-    smartypants: false
 });
 
-// var index = require('./routes/index');
+const index = require('./routes/index');
 // var users = require('./routes/users');
 
-var app = express();
+const app = express();
 
 
 // view engine setup
@@ -61,18 +52,24 @@ var app = express();
 // )
 
 
-// app.use('/', index);
-// app.use('/users', users);
+app.use('/', index);
+app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use('/go', (req, res, next) => {
-        fs.readFile(path.join(__dirname, 'public/note/go.md'), 'utf-8', (err, data) => {
-            const html = marked(data);
-            res.writeHead(200, {
-                'Content-Type': 'text/html;charset=utf-8'
-            });
-            res.end(html);
-        })
+    fs.readFile(path.join(__dirname, 'public/note/go.md'), 'utf-8', (err, data) => {
+        const html = marked(data);
+        // hljs.initHighlighting();
+        res.writeHead(200, {
+            'Content-Type': 'text/html;charset=utf-8'
+        });
+        const css = fs.readFileSync('./public/stylesheets/style.css');
+        const style = `<style>${css}</style>`; 
+
+        // const style = '<link src="./public/stylesheets/style.css" />'
+        // 为什么这种方法不行
+        res.end(style + html);
+        // res.end(html);
     })
-    // app.use('/static', express.static(path.join(__dirname, 'public')));
+})
 
 
 // catch 404 and forward to error handler
@@ -94,8 +91,6 @@ app.use('/go', (req, res, next) => {
 //     res.render('error');
 // });
 
-app.listen(3000, () => {
-        console.log('start server');
-        console.log(path.join(__dirname, 'public'));
-    })
-    // module.exports = app;
+app.listen(3001, () => {
+    console.log('server start at http://localhost:3001');
+})
